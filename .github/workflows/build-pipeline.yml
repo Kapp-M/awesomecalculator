@@ -75,8 +75,4 @@ jobs:
       - name: Verify Installation
         run: |
           python -c "import awesome_calculator; print(awesome_calculator.__version__)"
-
-        pip install src/dist/*.whl
-    - name: Verify Installation
-      run: |
-        python -c "import awesome_calculator; print(awesome_calculator.__version__)"
+             pip install src/dist/*.whl
