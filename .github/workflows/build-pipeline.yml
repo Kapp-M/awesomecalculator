@@ -10,6 +10,7 @@ on:
     branches:
       - master
       - main
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -46,6 +47,20 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: awesome-calculator
-        path: src/dist    
+        path: src/dist
 
-
+  install:
+    # Run this job only after the build job is complete
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - name: Download Artifact
+      uses: actions/download-artifact@v2
+      with:
+        name: awesome-calculator
+    - name: Install Package
+      run: |
+        pip install src/dist/*.whl
+    - name: Verify Installation
+      run: |
+        python -c "import awesome_calculator; print(awesome_calculator.__version__)"
