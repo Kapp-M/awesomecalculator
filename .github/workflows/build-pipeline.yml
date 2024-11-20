@@ -15,51 +15,67 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up python 3.7
-      uses: actions/setup-python@v2
-      with:
-        python-version: 3.7
-    - name: Install dependencies
-      run: |
-        cd src
-        python -m pip install --upgrade pip
-        pip install coverage
-        if  [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-    - name: Run Unit Tests and generate coverage report
-      run: |
-        cd src
-        python -m unittest -v
-        coverage run -m unittest
-        coverage report
-        coverage html
-    - name: Archive code coverage html report
-      uses: actions/upload-artifact@v3
-      with:
-        name: code-coverage-report
-        path: src/htmlcov
-    - name: Run package creation
-      run: |
-        cd src
-        python -m pip install --user --upgrade build
-        python -m build
-    - name: Archive package
-      uses: actions/upload-artifact@v3
-      with:
-        name: awesome-calculator
-        path: src/dist
+      - uses: actions/checkout@v2
+
+      - name: Set up python 3.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.7
+
+      - name: Install dependencies
+        run: |
+          cd src
+          python -m pip install --upgrade pip
+          pip install coverage
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Run Unit Tests and generate coverage report
+        run: |
+          cd src
+          python -m unittest -v
+          coverage run -m unittest
+          coverage report
+          coverage html
+
+      - name: Archive code coverage html report
+        uses: actions/upload-artifact@v3
+        with:
+          name: code-coverage-report
+          path: src/htmlcov
+
+      - name: Run package creation
+        run: |
+          cd src
+          python -m pip install --user --upgrade build
+          python -m build
+
+      - name: Archive package
+        uses: actions/upload-artifact@v3
+        with:
+          name: awesome-calculator
+          path: src/dist/*.whl
 
   install:
-    # Run this job only after the build job is complete
     needs: build
     runs-on: ubuntu-latest
     steps:
-    - name: Download Artifact
-      uses: actions/download-artifact@v3
-      with:
-        name: awesome-calculator
-    - name: Install Package
-      run: |
+      - name: Download Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: awesome-calculator
+
+      - name: Debug downloaded artifact
+        run: |
+          ls -l src/dist
+
+      - name: Install Package
+        run: |
+          pip install src/dist/*.whl
+
+      - name: Verify Installation
+        run: |
+          python -c "import awesome_calculator; print(awesome_calculator.__version__)"
+
         pip install src/dist/*.whl
     - name: Verify Installation
       run: |
